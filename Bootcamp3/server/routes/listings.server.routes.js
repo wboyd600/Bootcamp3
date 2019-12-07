@@ -15,14 +15,14 @@ var listings = require('../controllers/listings.server.controller.js'),
   Take note that it is possible for different controller functions to handle requests to the same route.
  
   Note: the listings variable above and the file it is connected to help you trace
- */
+*/
 router.route('/')
   .get(listings.list)
   .post(getCoordinates, listings.create);
 
 /*
   The ':' specifies a URL parameter. 
- */
+*/
 router.route('/:listingId')
   .get(listings.read)
   .put(getCoordinates, listings.update)

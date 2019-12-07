@@ -25,24 +25,26 @@ var mongoose = require('mongoose'),
 exports.create = function(req, res) {
 
   /* Instantiate a Listing */
-  var listing = new Listing(req.body);
-
-  /* save the coordinates (located in req.results if there is an address property) */
-  if(req.results) {
-    listing.coordinates = {
-      latitude: req.results.lat, 
-      longitude: req.results.lng
-    };
-  }
+  var listing = new Listing({
+    code: req.body.code,
+    name: req.body.name
+  });
+  if(req.body.address){
+      listing.address = req.body.address;
+      listing.coordinates = {
+        latitude: req.results.lat, 
+        longitude: req.results.lng
+      };
+    }
+        /* save the coordinates (located in req.results if there is an address property) */
+    
  
   /* Then save the listing */
   listing.save(function(err) {
     if(err) {
-      console.log(err);
       res.status(400).send(err);
     } else {
       res.json(listing);
-      console.log(listing)
     }
   });
 };
@@ -56,13 +58,26 @@ exports.read = function(req, res) {
 /* Update a listing - note the order in which this function is called by the router*/
 exports.update = function(req, res) {
   var listing = req.listing;
-
+  
   /* Replace the listings's properties with the new properties found in req.body */
- 
+  listing.code = req.body.code;
+  listing.name = req.body.name;
   /*save the coordinates (located in req.results if there is an address property) */
- 
+  if(req.body.address){
+    listing.address = req.body.address;
+    listing.coordinates = {
+      latitude: req.body.lat,
+      longitude: req.body.lng
+    };
+  }
   /* Save the listing */
-
+  listing.save(function(err){
+    if(err){
+      res.status(400).send(err);
+    }else{
+      res.json(listing);
+    }
+  });
 };
 
 /* Delete a listing */
@@ -70,12 +85,26 @@ exports.delete = function(req, res) {
   var listing = req.listing;
 
   /* Add your code to remove the listins */
+  listing.code = req.body.code;
 
+  Listing.findOneAndDelete({code: listing.code},function(err){
+    if(err)
+      res.status(400).send(err);
+    else
+      res.json(listing);
+  });
 };
 
 /* Retreive all the directory listings, sorted alphabetically by listing code */
 exports.list = function(req, res) {
-  /* Add your code */
+  // /* Add your code */
+   Listing.find().sort('code').exec(function(error,listings){
+     if(error){
+       res.status(400).send(error);
+     }else{
+       res.json(listings);
+     }
+   });
 };
 
 /* 
